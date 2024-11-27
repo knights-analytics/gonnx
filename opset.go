@@ -18,5 +18,17 @@ func ResolveOperatorGetter(opsetID int64) (OpGetter, error) {
 		return getOperator, nil
 	}
 
+	// Else find the lowest supported opset that is larger than opsetID
+	var nextLargerOpset int64 = -1
+	for key := range operatorGetters {
+		if key > opsetID && (nextLargerOpset == -1 || key < nextLargerOpset) {
+			nextLargerOpset = key
+		}
+	}
+
+	if nextLargerOpset != -1 {
+		return operatorGetters[nextLargerOpset], nil
+	}
+
 	return nil, ops.ErrUnsupportedOpsetVersion
 }
